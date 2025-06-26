@@ -31,7 +31,7 @@ class InboundNetwork(str, Enum):
     kcp = "kcp"
     http = "http"
     httpupgrade = "httpupgrade"
-    splithttp = "splithttp"
+    xhttp = "xhttp"
 
 
 class ALPN(str, Enum):

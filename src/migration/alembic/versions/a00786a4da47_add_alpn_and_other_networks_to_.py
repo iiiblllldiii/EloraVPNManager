@@ -19,7 +19,7 @@ depends_on = None
 enum_name = "inboundnetwork"
 temp_enum_name = f"temp_{enum_name}"
 old_values = ("tcp", "ws", "grpc")
-new_values = ("kcp", "http", "httpupgrade", "splithttp", *old_values)
+new_values = ("kcp", "http", "httpupgrade", "xhttp", *old_values)
 
 old_type = sa.Enum(*old_values, name=enum_name)
 new_type = sa.Enum(*new_values, name=enum_name)

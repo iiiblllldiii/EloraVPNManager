@@ -1,9 +1,10 @@
-import logging
+gmport logging
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 import src.accounts.service as account_service
 import src.notification.service as notification_service
@@ -70,15 +71,31 @@ def get_notifications(
 
 @notification_router.post("/notifications/bulk_send", tags=["Notification"])
 def bulk_send_notification(
-    user_ids: Optional[List[int]],
     notification: NotificationCreate,
+    user_ids: Optional[List[int]] = None,
     db: Session = Depends(get_db),
     admin: Admin = Depends(Admin.get_current),
 ):
+
+    
+    target_user_ids = user_ids
+
+    if not user_ids:
+        # If user_ids is None, fetch all user_ids from club_profile table
+        # Using text() for raw SQL query
+        result = db.execute(text("SELECT user_id FROM club_profile"))
+        target_user_ids = [row[0] for row in result.fetchall()]
+
+    # If target_user_ids is still None after the query (e.g., table is empty),
+    # or if it was an empty list from the start, we might want to handle it.
+    if not target_user_ids:
+        print("No user IDs to send notifications to.")
+        return
+
     try:
         notification_service.create_bulk_notification(
             db=db,
-            user_ids=user_ids,
+            user_ids=target_user_ids,
             notification=notification,
         )
     except IntegrityError as error:
