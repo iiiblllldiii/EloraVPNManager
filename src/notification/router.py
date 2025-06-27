@@ -1,4 +1,4 @@
-gmport logging
+import logging
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -78,16 +78,27 @@ def bulk_send_notification(
 ):
 
     
-    target_user_ids = user_ids
+    target_user_ids = []
+    
+    if user_ids is not None:
+        for uid in user_ids: # Renamed for clarity that it's a string
+            try:
+                # Attempt to convert each item to an integer
+                # This will skip non-integer strings like ""
+                if uid: 
+                    target_user_ids.append(int(uid))
+            except (ValueError, TypeError):
+                # Handle cases where uid_str is not a valid integer or is None/empty string
+                continue # Skip invalid entries
 
-    if not user_ids:
-        # If user_ids is None, fetch all user_ids from club_profile table
-        # Using text() for raw SQL query
+
+    # The rest of your logic remains the same.
+    # It will now correctly trigger if the user_ids list was empty or contained only invalid entries.
+    if not target_user_ids:
+        # If user_ids is None or empty after cleaning, fetch all user_ids
         result = db.execute(text("SELECT user_id FROM club_profile"))
         target_user_ids = [row[0] for row in result.fetchall()]
 
-    # If target_user_ids is still None after the query (e.g., table is empty),
-    # or if it was an empty list from the start, we might want to handle it.
     if not target_user_ids:
         print("No user IDs to send notifications to.")
         return
@@ -103,7 +114,6 @@ def bulk_send_notification(
         raise HTTPException(status_code=409, detail="Error in create notifications")
     except EloraApplicationError as error:
         raise HTTPException(status_code=409, detail=error.message())
-
 
 @notification_router.post(
     "/notifications/", tags=["Notification"], response_model=NotificationResponse
