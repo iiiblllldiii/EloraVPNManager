@@ -31,6 +31,8 @@ class InboundConfigBase(BaseModel):
     finger_print: InboundFingerPrint = InboundFingerPrint.default
     security: InboundSecurity = InboundSecurity.default
     type: InboundType = InboundType.default
+    config_mode: str = "auto"  # Renamed from 'mode' to 'config_mode'
+    extra: Optional[str] = None
 
 
 class InboundConfigCreate(InboundConfigBase):

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Tuple, Optional
 
-from sqlalchemy import or_
+from sqlalchemy import or_, func, cast, Text
 from sqlalchemy.orm import Session
 
 from src.hosts.models import HostZone, Host
@@ -50,6 +50,8 @@ def create_inbound_config(
         security=inbound_config.security,
         network=inbound_config.network,
         type=inbound_config.type,
+        config_mode=inbound_config.config_mode,  # Updated to use config_mode
+        extra=inbound_config.extra,
     )
 
     db.add(db_inbound_config)
@@ -78,6 +80,8 @@ def copy_inbound_config(db: Session, db_inbound_config: InboundConfig):
         security=db_inbound_config.security,
         network=db_inbound_config.network,
         type=db_inbound_config.type,
+        config_mode=db_inbound_config.config_mode,  # Updated to use config_mode
+        extra=db_inbound_config.extra,
     )
     db.add(new_db_inbound_config)
     db.commit()
@@ -107,6 +111,8 @@ def update_inbound_config(
     db_inbound_config.security = modify.security
     db_inbound_config.type = modify.type
     db_inbound_config.network = modify.network
+    db_inbound_config.config_mode = modify.config_mode  # Updated to use config_mode
+    db_inbound_config.extra = modify.extra
 
     db.commit()
     db.refresh(db_inbound_config)
@@ -128,15 +134,29 @@ def get_inbound_configs(
     return_with_count: bool = True,
 ) -> Tuple[List[InboundConfig], int]:
     query = db.query(InboundConfig)
+    count_query = db.query(func.count(InboundConfig.id))
 
     if enable >= 0:
         query = query.filter(InboundConfig.enable == (True if enable > 0 else False))
+        count_query = count_query.filter(
+            InboundConfig.enable == (True if enable > 0 else False)
+        )
 
     if inbound_id > 0:
         query = query.filter(InboundConfig.inbound_id == inbound_id)
+        count_query = count_query.filter(InboundConfig.inbound_id == inbound_id)
 
     if q:
         query = query.filter(
+            or_(
+                InboundConfig.remark.ilike(f"%{q}%"),
+                InboundConfig.domain.ilike(f"%{q}%"),
+                InboundConfig.address.ilike(f"%{q}%"),
+                InboundConfig.host.ilike(f"%{q}%"),
+                InboundConfig.sni.ilike(f"%{q}%"),
+            )
+        )
+        count_query = count_query.filter(
             or_(
                 InboundConfig.remark.ilike(f"%{q}%"),
                 InboundConfig.domain.ilike(f"%{q}%"),
@@ -152,10 +172,15 @@ def get_inbound_configs(
         query = query.join(HostZone, HostZone.id == Host.host_zone_id)
         query = query.filter(HostZone.id == host_zone_id)
 
+        count_query = count_query.join(Inbound, Inbound.id == InboundConfig.inbound_id)
+        count_query = count_query.join(Host, Host.id == Inbound.host_id)
+        count_query = count_query.join(HostZone, HostZone.id == Host.host_zone_id)
+        count_query = count_query.filter(HostZone.id == host_zone_id)
+
+    count = count_query.scalar()
+
     if sort:
         query = query.order_by(*(opt.value for opt in sort))
-
-    count = query.count()
 
     if offset:
         query = query.offset(offset)

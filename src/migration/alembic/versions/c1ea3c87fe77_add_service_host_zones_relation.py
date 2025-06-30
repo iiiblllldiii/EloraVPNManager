@@ -33,7 +33,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("service_id", "host_zone_id"),
     )
-    op.drop_constraint("service_host_zone_id_fkey", "service", type_="foreignkey")
+    # op.drop_constraint("service_host_zone_id_fkey", "service", type_="foreignkey")
     op.drop_column("service", "host_zone_id")
     # ### end Alembic commands ###
 

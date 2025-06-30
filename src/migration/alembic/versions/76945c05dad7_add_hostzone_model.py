@@ -62,21 +62,35 @@ def upgrade() -> None:
         ],
     )
 
-    op.add_column(
-        "account",
-        sa.Column("host_zone_id", sa.Integer(), nullable=False, server_default=str(1)),
-    )
-    op.create_foreign_key(None, "account", "host_zone", ["host_zone_id"], ["id"])
-    op.add_column(
-        "host",
-        sa.Column("host_zone_id", sa.Integer(), nullable=False, server_default=str(1)),
-    )
-    op.create_foreign_key(None, "host", "host_zone", ["host_zone_id"], ["id"])
-    op.add_column(
-        "service",
-        sa.Column("host_zone_id", sa.Integer(), nullable=False, server_default=str(1)),
-    )
-    op.create_foreign_key(None, "service", "host_zone", ["host_zone_id"], ["id"])
+    with op.batch_alter_table("account", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "host_zone_id", sa.Integer(), nullable=False, server_default=str(1)
+            )
+        )
+        batch_op.create_foreign_key(
+            "fk_account_host_zone_id", "host_zone", ["host_zone_id"], ["id"]
+        )
+
+    with op.batch_alter_table("host", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "host_zone_id", sa.Integer(), nullable=False, server_default=str(1)
+            )
+        )
+        batch_op.create_foreign_key(
+            "fk_host_host_zone_id", "host_zone", ["host_zone_id"], ["id"]
+        )
+
+    with op.batch_alter_table("service", schema=None) as batch_op:
+        batch_op.add_column(
+            sa.Column(
+                "host_zone_id", sa.Integer(), nullable=False, server_default=str(1)
+            )
+        )
+        batch_op.create_foreign_key(
+            "fk_service_host_zone_id", "host_zone", ["host_zone_id"], ["id"]
+        )
     # ### end Alembic commands ###
 
 

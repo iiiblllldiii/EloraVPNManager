@@ -11,6 +11,7 @@ from sqlalchemy import (
     Boolean,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import TypeDecorator, TEXT
 
 from src.database import Base
 from src.inbounds.schemas import (
@@ -19,6 +20,20 @@ from src.inbounds.schemas import (
     InboundFingerPrint,
     InboundNetwork,
 )
+
+
+class JSONList(TypeDecorator):
+    impl = TEXT
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return json.dumps(value)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            return json.loads(value)
+        return value
 
 
 class InboundConfig(Base):
@@ -61,37 +76,13 @@ class InboundConfig(Base):
         default=InboundNetwork.ws.value,
     )
 
-    alpn = Column(String(400))
+    alpns = Column(JSONList)
 
     type = Column(Enum(InboundType), nullable=False, default=InboundType.default.value)
+    config_mode = Column(
+        String(128), nullable=False, default="auto"
+    )  # Renamed from 'mode' to 'config_mode'
+    extra = Column(String(2048), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     modified_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    @property
-    def alpns(self):
-        """Deserialize JSON string into a Python list."""
-        if self.alpn:
-            try:
-                return json.loads(self.alpn)
-            except json.JSONDecodeError as e:
-                raise ValueError(
-                    f"Invalid JSON stored in alpn: {self.alpn}. Error: {str(e)}"
-                )
-        return None
-
-    @alpns.setter
-    def alpns(self, value):
-        """Serialize a Python list into a JSON string for alpn."""
-        if value is not None:
-            # Ensure the list is in a correct format
-            if isinstance(value, str):
-                # If the value is a string like "{h2,h3}", convert it into a list
-                value = [item.strip() for item in value.strip("{}").split(",")]
-
-            try:
-                self.alpn = json.dumps(value)  # Store as a valid JSON string
-            except (TypeError, ValueError) as e:
-                raise ValueError(f"Invalid value for alpns: {value}. Error: {str(e)}")
-        else:
-            self.alpn = None  # Set to None if no value is provided

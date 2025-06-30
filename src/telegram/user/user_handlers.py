@@ -361,6 +361,15 @@ def get_test_service(message):
 
 
 @bot.callback_query_handler(
+    func=lambda call: call.data.startswith("get_test_service:"),
+    is_subscribed_user=True,
+)
+def get_test_service_call(call: types.CallbackQuery):
+    get_test_service(message=call.message)
+    bot.answer_callback_query(callback_query_id=call.id)
+
+
+@bot.callback_query_handler(
     func=lambda call: call.data.startswith("buy_or_recharge_service:"),
     is_subscribed_user=True,
 )

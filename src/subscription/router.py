@@ -25,6 +25,8 @@ def sub(
     develop: bool = False,
     address: str = None,
     q: str = None,
+    mode: str = None,
+    extra: str = None,
     db: Session = Depends(get_db),
 ):
     db_account = account_service.get_account_by_uuid(db=db, uuid=uuid)
@@ -77,6 +79,8 @@ def sub(
                 ),
                 remark=remark,
                 alpns=inbound_config.alpns,
+                mode=inbound_config.config_mode,
+                extra=inbound_config.extra,
             )
             rows.append(link)
 

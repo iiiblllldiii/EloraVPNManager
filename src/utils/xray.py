@@ -17,29 +17,40 @@ def generate_vless_config(
     sid: str,
     spx: str,
     pbk: str,
-    flow: str,
+    flow: str = "",
     network_type: str = "ws",
     alpns: List[str] = None,
+    mode: str = "",
+    extra: str = "",
 ):
     prefix_txt = "%s@%s:%s" % (uuid, address, port)
     prefix = "vless://" + prefix_txt
-    postfix_list = [
-        "path=%s" % urllib.parse.quote(path.encode("utf8")),
-        "security=%s" % security,
-        "encryption=%s" % "none",
-        "fp=%s" % fp,
-        "type=%s" % network_type,
-    ]
+    postfix_list = []
+
+    postfix_list.append("encryption=%s" % "none")
+
+    if flow:
+        postfix_list.append("flow=%s" % flow)
+
+    postfix_list.append("security=%s" % security)
 
     if sni:
         postfix_list.append("sni=%s" % sni)
+
+    if alpns:
+        alpns_str = ",".join(alpns)
+        if alpns_str:
+            postfix_list.append("alpn=%s" % urllib.parse.quote(alpns_str.encode("utf8")))
+
+    postfix_list.append("fp=%s" % fp)
+
+    postfix_list.append("type=%s" % network_type)
 
     if host:
         postfix_list.append("host=%s" % host)
         postfix_list.append("headerType=%s" % "http")
 
-    if flow:
-        postfix_list.append("flow=%s" % flow)
+    postfix_list.append("path=%s" % urllib.parse.quote(path.encode("utf8")))
 
     if security == InboundSecurity.reality.value:
         if sid:
@@ -48,10 +59,10 @@ def generate_vless_config(
             postfix_list.append("pbk=%s" % pbk)
         if spx:
             postfix_list.append("spx=%s" % urllib.parse.quote(spx.encode("utf8")))
-    # postfix_list.append('alpn=%s' % urllib.parse.quote(alpn.encode('utf8')))
-    if alpns:
-        alpns_str = ",".join(alpns) if alpns else None
-        postfix_list.append("alpn=%s" % urllib.parse.quote(alpns_str.encode("utf8")))
+    if network_type == "xhttp":
+        postfix_list.append("mode=%s" % mode)
+        if extra:
+            postfix_list.append("extra=%s" % urllib.parse.quote(extra.encode("utf8")))
     link = (
         prefix
         + "?"

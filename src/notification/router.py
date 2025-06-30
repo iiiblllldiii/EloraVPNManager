@@ -12,6 +12,7 @@ import src.users.service as user_service
 from src.admins.schemas import Admin
 from src.database import get_db
 from src.exc import EloraApplicationError
+from src.utils.exc import InvalidJSONFormatError
 from src.notification.schemas import (
     NotificationsResponse,
     NotificationStatus,
@@ -77,20 +78,18 @@ def bulk_send_notification(
     admin: Admin = Depends(Admin.get_current),
 ):
 
-    
     target_user_ids = []
-    
+
     if user_ids is not None:
-        for uid in user_ids: # Renamed for clarity that it's a string
+        for uid in user_ids:  # Renamed for clarity that it's a string
             try:
                 # Attempt to convert each item to an integer
                 # This will skip non-integer strings like ""
-                if uid: 
+                if uid:
                     target_user_ids.append(int(uid))
             except (ValueError, TypeError):
                 # Handle cases where uid_str is not a valid integer or is None/empty string
-                continue # Skip invalid entries
-
+                continue  # Skip invalid entries
 
     # The rest of your logic remains the same.
     # It will now correctly trigger if the user_ids list was empty or contained only invalid entries.
@@ -109,11 +108,14 @@ def bulk_send_notification(
             user_ids=target_user_ids,
             notification=notification,
         )
+    except InvalidJSONFormatError as error:
+        raise HTTPException(status_code=400, detail=error.message())
     except IntegrityError as error:
         logger.error(error)
         raise HTTPException(status_code=409, detail="Error in create notifications")
     except EloraApplicationError as error:
         raise HTTPException(status_code=409, detail=error.message())
+
 
 @notification_router.post(
     "/notifications/", tags=["Notification"], response_model=NotificationResponse

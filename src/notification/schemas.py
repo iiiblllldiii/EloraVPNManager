@@ -60,6 +60,21 @@ class NotificationBase(BaseModel):
     status: Optional[NotificationStatus] = NotificationStatus.pending
     type: NotificationType
 
+    @validator("keyboard", pre=True, always=True)
+    def validate_keyboard_json(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, (dict, list)):
+            return v
+        if isinstance(v, str):
+            if not v.strip():
+                return None
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                raise ValueError("The keyboard field contains invalid JSON")
+        raise ValueError("Keyboard must be a valid JSON string or object")
+
 
 class NotificationCreate(NotificationBase):
     pass
@@ -77,15 +92,14 @@ class NotificationResponse(NotificationBase):
     created_at: datetime
     modified_at: datetime
 
-    @validator("keyboard")
-    def validate_keyboard(cls, keyboard: str):
-        if keyboard is not None:
-            return json.dumps(keyboard)
-        else:
-            None
-
-    def dict(cls, *args, **kwargs):
-        return super().dict(*args, **kwargs)
+    @validator("keyboard", pre=True, always=True)
+    def serialize_keyboard_from_db(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return None  # Or handle as an error
+        return v
 
     class Config:
         orm_mode = True

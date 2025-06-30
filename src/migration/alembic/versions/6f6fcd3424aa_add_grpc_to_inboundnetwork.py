@@ -34,6 +34,7 @@ def upgrade() -> None:
     # temp type to use instead of old one
     temp_type.create(op.get_bind(), checkfirst=False)
     op.execute("ALTER TABLE inbound_config ALTER COLUMN network DROP DEFAULT")
+    op.execute("ALTER TABLE inbound_config ALTER COLUMN network DROP DEFAULT")
 
     # changing of column type from old enum to new one.
     # SQLite will create temp table for this

@@ -31,7 +31,8 @@ class IsAdminUser(custom_filters.SimpleCustomFilter):
             return False
 
 
-bot.add_custom_filter(IsAdminUser())
+if bot:
+    bot.add_custom_filter(IsAdminUser())
 
 
 @bot.message_handler(is_admin=True, is_forwarded=True)

@@ -44,6 +44,10 @@ def create_notification(
     db_account: Optional[Account] = None,
     db_user: Optional[User] = None,
 ):
+    keyboard = notification.keyboard
+    if keyboard and not isinstance(keyboard, str):
+        keyboard = json.dumps(keyboard)
+
     db_notification = Notification(
         account_id=None if db_account is None else db_account.id,
         user_id=None if db_user is None else db_user.id,
@@ -55,7 +59,7 @@ def create_notification(
         status=notification.status,
         engine=notification.engine,
         type=notification.type,
-        keyboard=(json.loads(notification.keyboard) if notification.keyboard else None),
+        keyboard=(json.loads(keyboard) if keyboard else None),
         photo_url=notification.photo_url,
     )
 
@@ -70,6 +74,10 @@ def create_bulk_notification(
     user_ids: Optional[List[int]],
     notification: NotificationCreate,
 ):
+    keyboard = notification.keyboard
+    if keyboard and not isinstance(keyboard, str):
+        keyboard = json.dumps(keyboard)
+
     for user_id in user_ids:
         db_notification = Notification(
             account_id=None,
@@ -82,11 +90,7 @@ def create_bulk_notification(
             status=notification.status,
             engine=notification.engine,
             type=notification.type,
-            keyboard=(
-                json.loads(notification.keyboard)
-                if notification.keyboard is not None
-                else None
-            ),
+            keyboard=json.loads(keyboard) if keyboard else None,
             photo_url=notification.photo_url,
         )
 
@@ -192,6 +196,10 @@ def update_notification(
         db=db, db_user=db_user, db_notification=db_notification, modify=modify
     )
 
+    keyboard = modify.keyboard
+    if keyboard and not isinstance(keyboard, str):
+        keyboard = json.dumps(keyboard)
+
     db_notification.account_id = modify.account_id
     db_notification.user_id = modify.user_id
     db_notification.level = modify.level
@@ -201,9 +209,7 @@ def update_notification(
     db_notification.status = modify.status
     db_notification.type = modify.type
 
-    db_notification.keyboard = (
-        json.loads(modify.keyboard) if modify.keyboard is not None else None
-    )
+    db_notification.keyboard = json.loads(keyboard) if keyboard is not None else None
     db_notification.photo_url = modify.photo_url
 
     db.commit()
@@ -220,3 +226,11 @@ def remove_notification(db: Session, db_notification: Notification):
 
 def get_notification(db: Session, notification_id: int) -> Notification:
     return db.query(Notification).filter(Notification.id == notification_id).first()
+
+
+def get_notification_by_level(db: Session, account_id: int, level: int) -> Notification:
+    return (
+        db.query(Notification)
+        .filter(Notification.account_id == account_id, Notification.level == level)
+        .first()
+    )

@@ -1,6 +1,7 @@
 from telebot import types  # noqa
 
 from src.telegram.admin import captions
+from src.telegram.callbacks import create_increment_callback_data
 
 
 class BotAdminKeyboard:
@@ -27,6 +28,12 @@ class BotAdminKeyboard:
             types.InlineKeyboardButton(
                 text=captions.TRANSACTION_REPORTS, callback_data="report_transaction"
             ),
+        )
+        keyboard.add(
+            types.InlineKeyboardButton(
+                text="Increment Value",
+                callback_data=create_increment_callback_data(0),
+            )
         )
         # keyboard.add(
         #     types.InlineKeyboardButton(text=captions.MY_PROFILE),

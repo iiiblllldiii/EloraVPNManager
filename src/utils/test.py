@@ -1,10 +1,7 @@
-import json
 from typing import List
-
 from pydantic import BaseModel
-
-from src.utils.exc import InvalidJSONFormatError
 from telebot import types
+import json
 
 
 class Keyboard(BaseModel):
@@ -20,38 +17,28 @@ class KeyboardFactory:
     @staticmethod
     def from_keyboard(keyboards: List[Keyboard]) -> types.InlineKeyboardMarkup:
         markup = types.InlineKeyboardMarkup()
-        buttons = []
         for keyboard in keyboards:
             args = {"text": keyboard.text}
             if keyboard.url:
                 args["url"] = keyboard.url
             if keyboard.callback_data:
                 args["callback_data"] = keyboard.callback_data
-            buttons.append(types.InlineKeyboardButton(**args))
-
-        for i in range(0, len(buttons), 2):
-            markup.row(*buttons[i : i + 2])
+            button = types.InlineKeyboardButton(**args)
+            markup.add(button)  # Each button is on its own row
         return markup
 
     @staticmethod
     def from_json_string(keyboards_input) -> types.InlineKeyboardMarkup:
-        """
-        Creates an InlineKeyboardMarkup from a JSON string or a list of keyboard dictionaries.
-        """
         if not keyboards_input:
             return types.InlineKeyboardMarkup()
 
         if isinstance(keyboards_input, str):
-            try:
-                keyboards_list = json.loads(keyboards_input)
-            except json.JSONDecodeError:
-                raise InvalidJSONFormatError()
+            keyboards_list = json.loads(keyboards_input)
         else:
             keyboards_list = keyboards_input
 
         markup = types.InlineKeyboardMarkup()
 
-        buttons = []
         for keyboard_dict in keyboards_list:
             args = {}
             if "text" in keyboard_dict:
@@ -62,9 +49,7 @@ class KeyboardFactory:
                 args["callback_data"] = keyboard_dict["callback_data"]
 
             if "text" in args:
-                buttons.append(types.InlineKeyboardButton(**args))
-
-        for i in range(0, len(buttons), 2):
-            markup.row(*buttons[i : i + 2])
+                button = types.InlineKeyboardButton(**args)
+                markup.add(button)  # Each button is on its own row
 
         return markup

@@ -113,7 +113,7 @@ download_latest_release() {
             error "Version ${VERSION_TAG} not found"
         fi
     else
-        LATEST_RELEASE=$(curl -s https://api.github.com/repos/eloravpn/EloraVPNManager/releases/latest)
+        LATEST_RELEASE=$(curl -s https://api.github.com/repos/forghani77/EloraVPNManager/releases/latest)
     fi
 
      # Extract version and download URL
@@ -722,3 +722,4 @@ main() {
 
 # Run main installation
 main "$@"
+
