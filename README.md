@@ -8,7 +8,7 @@
 
 <div align="center">
 
-<a href="https://t.me/EloraVPNManager/14">
+<a href="https://t.me/forghani77Manager/14">
   <img src="https://raw.githubusercontent.com/maurodesouza/profile-readme-generator/master/src/assets/icons/social/youtube/default.svg" width="52" height="40" alt="youtube logo"/>
 </a>
 
@@ -193,7 +193,7 @@ The installation script will automatically install these dependencies, but for r
 For full functionality, including subscription URLs and all features:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/eloravpn/EloraVPNManager/main/install.sh | sudo bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/forghani77/EloraVPNManager/main/install.sh | sudo bash -s -- \
   --domain your-domain.com \
   --port 8080
 ```
@@ -211,7 +211,7 @@ Basic installation using auto-detected public IP (Limited functionality):
 
 Auto-detects your public IP address
 ```bash
-curl -fsSL https://raw.githubusercontent.com/eloravpn/EloraVPNManager/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/forghani77/EloraVPNManager/main/install.sh | sudo bash
 ```
 **⚠️ Limitations of IP-based installation:**
 
@@ -225,7 +225,7 @@ Note: For production environments, always use Option 1 with a proper domain name
 
 ### Full Custom Installation
 ```bash
-curl -fsSL https://raw.githubusercontent.com/eloravpn/EloraVPNManager/main/install.sh | sudo bash -s -- \
+curl -fsSL https://raw.githubusercontent.com/forghani77/EloraVPNManager/main/install.sh | sudo bash -s -- \
   --domain your-domain.com \
   --port 8080 \
   --protocol https \
@@ -254,10 +254,10 @@ To update the application, use one of these commands:
 
 ```bash
 # Update to latest version
-curl -fsSL https://raw.githubusercontent.com/eloravpn/EloraVPNManager/main/install.sh | sudo bash -s -- --update
+curl -fsSL https://raw.githubusercontent.com/forghani77/EloraVPNManager/main/install.sh | sudo bash -s -- --update
 
 # Update to specific version
-curl -fsSL https://raw.githubusercontent.com/eloravpn/EloraVPNManager/main/install.sh | sudo bash -s -- --update --version v1.2.3
+curl -fsSL https://raw.githubusercontent.com/forghani77/EloraVPNManager/main/install.sh | sudo bash -s -- --update --version v1.2.3
 ```
 - Restart the service
 
@@ -595,7 +595,7 @@ sudo -u postgres psql -d elora_db -c "\dx"
 If you encounter any issues:
 1. Check the logs using the commands above
 2. Verify your system meets the minimum requirements
-3. [Open an issue](https://github.com/eloravpn/EloraVPNManager/issues) on GitHub
+3. [Open an issue](https://github.com/forghani77/EloraVPNManager/issues) on GitHub
 
 ## Security Notes
 - The installation script automatically generates secure random passwords for the database and JWT secret
@@ -626,7 +626,7 @@ The environment varaibles is SUDO_USERNAME and SUDO_PASSWORD
 
 #### The Web Panel Repository
 
-Follow the Readme in [Elora VPN Manager Panel](https://github.com/eloravpn/EloraVPNManagerPanel)
+Follow the Readme in [Elora VPN Manager Panel](https://github.com/forghani77/EloraVPNManagerPanel)
 
 
 ## 📝 License
@@ -643,7 +643,7 @@ For support, please:
 
 
 ### Contact US in Telegram
-[Elora VPN](https://t.me/eloravpn)
+[Elora VPN](https://t.me/forghani77)
 
 ---
 
