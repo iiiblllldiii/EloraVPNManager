@@ -1,19 +1,13 @@
 from datetime import datetime, timedelta
 from typing import Union
 
-import sqlalchemy
-
-# from src import app
-# from src import app
+# Import get_setting from the correct path
+from src.config_setting.utils import get_setting
 from src.config import JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 from jose import JWTError, jwt
 
-global JWT_SECRET_KEY
-
-JWT_SECRET_KEY = "5c1aa9ebd8c25390fa309bcf3a187d4cd05d623484a88e60c30a48ede7770501"
-
-
-# @app.on_event("startup")
+# Use get_setting to retrieve the JWT_SECRET_KEY
+JWT_SECRET_KEY = get_setting("JWT_SECRET_KEY", default="5c1aa9ebd8c25390fa309bcf3a187d4cd05d623484a88e60c30a48ede7770501", cast=str)
 
 
 def create_admin_token(username: str, is_sudo=False) -> str:
